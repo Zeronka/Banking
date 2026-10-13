@@ -1,19 +1,3 @@
-"""
-Инвестиционный счет и инвестиционный актив.
-
-  * Класс-«контейнер данных» InvestmentAsset с { get; set; } в Python удобно
-    делать через @dataclass: он сам создаёт __init__ с нужными полями.
-  * Инициализатор объекта C#:
-        new InvestmentAsset { Name = "AAPL", Quantity = 10, ... }
-    в Python:
-        InvestmentAsset(name="AAPL", quantity=10, ...)
-  * `List<InvestmentAsset>`               -> обычный список list[InvestmentAsset]
-  * LINQ `Portfolio.Sum(a => a.GetValue())` -> sum(a.get_value() for a in self._portfolio)
-  * LINQ `FirstOrDefault(a => a.Name == x)` -> next((a for a in ... if a.name == x), None)
-  * `null`                                -> None
-  * `StringBuilder` + `AppendLine`        -> список строк и "\n".join(...)
-  * Свойство-выражение `=> ...` (TotalPortfolioValue) -> @property
-"""
 from dataclasses import dataclass
 from decimal import Decimal
 
@@ -26,13 +10,11 @@ from banking_system.utils import to_decimal
 @dataclass
 class InvestmentAsset:
     name: str
-    asset_type: str                      # в C# поле называлось Type; `type` в Python — встроенная функция
+    asset_type: str
     quantity: Decimal
     current_price: Decimal
     annual_yield_percent: Decimal
 
-    # __post_init__ вызывается автоматически после __init__ у dataclass.
-    # Здесь приводим числа к Decimal, чтобы можно было передавать int.
     def __post_init__(self) -> None:
         self.quantity = to_decimal(self.quantity)
         self.current_price = to_decimal(self.current_price)
@@ -67,7 +49,6 @@ class InvestmentAccount(BankAccount):
 
     @property
     def total_portfolio_value(self) -> Decimal:
-        # Decimal("0") — стартовое значение суммы, чтобы для пустого списка тоже был Decimal
         return sum((a.get_value() for a in self._portfolio), Decimal("0"))
 
     def _find_asset(self, asset_name: str) -> InvestmentAsset | None:
@@ -109,7 +90,7 @@ class InvestmentAccount(BankAccount):
                 f"доступно: {self._investment_balance} {self._currency}")
 
         self._investment_balance -= cost
-        self._portfolio.append(asset)            # List.Add -> list.append
+        self._portfolio.append(asset)
         print(f"Счет {self._id}: куплен актив {asset.name} на сумму {cost} {self._currency}")
 
     def sell_asset(self, asset_name: str, quantity) -> None:
@@ -117,7 +98,7 @@ class InvestmentAccount(BankAccount):
         self._validate_account_status_for_operation()
 
         asset = self._find_asset(asset_name)
-        if asset is None:                        # == null -> is None
+        if asset is None:
             raise InvalidOperationError(f"Актив {asset_name} не найден в портфеле")
 
         if asset.quantity < quantity:
@@ -128,7 +109,7 @@ class InvestmentAccount(BankAccount):
         asset.quantity -= quantity
 
         if asset.quantity == 0:
-            self._portfolio.remove(asset)        # List.Remove -> list.remove
+            self._portfolio.remove(asset)
 
         print(f"Счет {self._id}: продано {quantity} {asset_name} на сумму {sale_value} {self._currency}")
 
@@ -159,16 +140,16 @@ class InvestmentAccount(BankAccount):
     def get_portfolio_report(self) -> str:
         lines = ["=== ИНВЕСТИЦИОННЫЙ ПОРТФЕЛЬ ==="]
 
-        if len(self._portfolio) == 0:            # Portfolio.Count == 0
+        if len(self._portfolio) == 0:
             lines.append("Портфель пуст")
         else:
-            for asset in self._portfolio:        # foreach (var asset in Portfolio)
+            for asset in self._portfolio:
                 lines.append(f"  • {asset}")
             lines.append(f"\nОбщая стоимость портфеля: {self.total_portfolio_value} {self._currency}")
             lines.append(f"Проектированная годовая доходность: {self.project_yearly_growth()} {self._currency}")
 
         lines.append(f"Свободный инвестиционный баланс: {self._investment_balance} {self._currency}")
-        return "\n".join(lines) + "\n"           # AppendLine ставит перенос и в конце
+        return "\n".join(lines) + "\n"
 
     def get_account_info(self) -> str:
         main_balance = self.get_balance()

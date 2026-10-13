@@ -1,9 +1,3 @@
-"""
-Валюты.
-
-C#:
-    public enum Currency { RUB, USD, EUR, KZT, CNY }
-"""
 from enum import Enum
 
 

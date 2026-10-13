@@ -1,14 +1,3 @@
-"""
-Демонстрационные «тесты» всех типов счетов.
-
-C#: public static class BankAccountTester { public static void RunTests() ... }
-В Python статический класс не нужен: функции можно класть прямо в модуль (файл).
-
-  * try { } catch (AccountFrozenError ex) { }  ->  try: ... except AccountFrozenError as ex: ...
-  * ex.Message                                 ->  ex (f-строка сама вызовет str(ex))
-  * catch (Exception ex)                       ->  except Exception as ex
-  * литерал decimal 5.5m                       ->  Decimal("5.5")
-"""
 from decimal import Decimal
 
 from banking_system.enums import Currency
@@ -65,27 +54,22 @@ def test_saving_account() -> None:
     print("\n>>> ТЕСТИРОВАНИЕ СБЕРЕГАТЕЛЬНОГО СЧЕТА <<<\n")
 
     try:
-        # Создание с минимальным балансом 500 и ставкой 5.5%
         saving = SavingAccount("Петр Сидоров", Currency.USD, Decimal("5.5"), 500, 1000)
         print(saving.get_account_info())
         print()
 
-        # Попытка снять больше, чем позволяет мин. баланс
         print("Попытка снять 600 (мин. баланс 500):")
         try:
             saving.withdraw(600)
         except InvalidOperationError as ex:
             print(f"Ожидаемая ошибка: {ex}")
 
-        # Успешное снятие
         print("\nСнятие 400 (должно работать):")
         saving.withdraw(400)
         print(f"Баланс: {saving.get_balance()}, Минимум: {saving.min_balance}")
 
-        # Расчет прибыли
         print(f"\nПрибыль за месяц: {saving.calculate_monthly_profit():.2f} {saving.currency}")
 
-        # Начисление процентов
         saving.apply_monthly_interest()
         print(f"Баланс после начисления: {saving.get_balance()}")
 
@@ -98,7 +82,6 @@ def test_premium_account() -> None:
     print("\n>>> ТЕСТИРОВАНИЕ ПРЕМИУМ СЧЕТА <<<\n")
 
     try:
-        # Создание с овердрафтом 5000, лимитом 10000, комиссией 50
         premium = PremiumAccount("Олег Премьер", Currency.EUR, 5000, 10000, 50, 1000)
         print(premium.get_account_info())
         print()

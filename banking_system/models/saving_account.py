@@ -1,11 +1,3 @@
-"""
-Сберегательный счет: неснижаемый остаток + ежемесячные проценты.
-
-C#: public class SavingAccount : BankAccount
-Python: class SavingAccount(BankAccount)   <- родитель указывается в скобках
-
-`{profit:F2}` (два знака после запятой) в Python пишется как f"{profit:.2f}".
-"""
 from banking_system.enums import Currency
 from banking_system.exceptions import InvalidOperationError
 from banking_system.models.bank_account import BankAccount
@@ -16,8 +8,6 @@ class SavingAccount(BankAccount):
 
     def __init__(self, owner_name: str, currency: Currency, monthly_interest_rate,
                  min_balance=0, initial_balance=0, account_id: str | None = None) -> None:
-        # В C# конструктор базового класса (: base(...)) вызывается ПЕРЕД телом.
-        # В Python мы сами решаем, когда вызвать super().__init__ — делаем это первым.
         super().__init__(owner_name, currency, initial_balance, account_id)
 
         monthly_interest_rate = to_decimal(monthly_interest_rate)
@@ -42,8 +32,6 @@ class SavingAccount(BankAccount):
     def monthly_interest_rate(self):
         return self._monthly_interest_rate
 
-    # C#: public override void Withdraw(...)
-    # В Python слово override не нужно: метод с тем же именем просто заменяет родительский.
     def withdraw(self, amount) -> None:
         amount = to_decimal(amount)
         self._validate_amount(amount)

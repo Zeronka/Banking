@@ -1,21 +1,3 @@
-"""
-Обычный банковский счет.
-
-Важное отличие: в C# у класса ДВА конструктора (перегрузка):
-    BankAccount(string ownerName, Currency currency, decimal initialBalance = 0)
-    BankAccount(string id, string ownerName, Currency currency, decimal initialBalance = 0)
-В Python перегрузки нет: у класса один __init__. Поэтому id сделан
-необязательным именованным параметром account_id=None. Если его не передали,
-ID генерируется автоматически, как в первом конструкторе C#.
-
-Другие соответствия:
-  * `private static readonly Random _random` -> модуль random
-  * `private static string ValidateId(...)`  -> @staticmethod _validate_id(...)
-  * `Console.WriteLine(...)`                 -> print(...)
-  * `string.IsNullOrWhiteSpace(s)`           -> not s or not s.strip()
-  * `switch (Status) { case ...: }`          -> if / elif (или match в Python 3.10+)
-  * `public decimal GetBalance() => Balance;` -> def get_balance(self): return self._balance
-"""
 import random
 
 from banking_system.enums import AccountStatus, Currency
@@ -30,13 +12,12 @@ from banking_system.utils import to_decimal
 
 
 class BankAccount(AbstractAccount):
-    _SHORT_ID_LENGTH = 8      # private const int SHORT_ID_LENGTH = 8
+    _SHORT_ID_LENGTH = 8
 
     def __init__(self, owner_name: str, currency: Currency, initial_balance=0, account_id: str | None = None) -> None:
         if account_id is None:
             account_id = BankAccount._generate_short_id()
 
-        # C#: : base(ValidateId(id), ValidateOwnerName(ownerName), ...)
         super().__init__(
             BankAccount._validate_id(account_id),
             BankAccount._validate_owner_name(owner_name),
@@ -48,26 +29,24 @@ class BankAccount(AbstractAccount):
     def currency(self) -> Currency:
         return self._currency
 
-    # ---------- статические вспомогательные методы ----------
     @staticmethod
     def _generate_short_id() -> str:
         chars = "0123456789"
-        # Генератор списка вместо цикла for + StringBuilder
         return "".join(random.choice(chars) for _ in range(BankAccount._SHORT_ID_LENGTH))
 
     @staticmethod
     def _validate_id(account_id: str) -> str:
         if not account_id or not account_id.strip():
-            raise InvalidOperationError("ID счета не может быть пустым")   # throw -> raise
+            raise InvalidOperationError("ID счета не может быть пустым")
         return account_id
 
     @staticmethod
     def _validate_owner_name(owner_name: str) -> str:
         if not owner_name or not owner_name.strip():
             raise InvalidOperationError("Имя владельца не может быть пустым")
-        if len(owner_name) < 2:                                            # .Length -> len()
+        if len(owner_name) < 2:
             raise InvalidOperationError("Имя владельца слишком короткое")
-        return owner_name.strip()                                          # .Trim() -> .strip()
+        return owner_name.strip()
 
     @staticmethod
     def _validate_initial_balance(balance):
@@ -75,7 +54,6 @@ class BankAccount(AbstractAccount):
             raise InvalidOperationError("Начальный баланс не может быть отрицательным")
         return balance
 
-    # ---------- protected-проверки (доступны наследникам) ----------
     def _validate_amount(self, amount) -> None:
         if amount <= 0:
             raise InvalidOperationError("Сумма должна быть положительной")
@@ -86,7 +64,6 @@ class BankAccount(AbstractAccount):
         if self._status == AccountStatus.CLOSED:
             raise AccountClosedError()
 
-    # ---------- операции ----------
     def deposit(self, amount) -> None:
         amount = to_decimal(amount)
         self._validate_amount(amount)

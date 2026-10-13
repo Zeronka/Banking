@@ -1,12 +1,3 @@
-"""
-Премиум-счет: овердрафт, дневной лимит снятия, фиксированная комиссия.
-
-  * `DateTime.MinValue` -> date.min
-  * `DateTime.Now.Date` -> date.today()
-  * `Math.Abs(x)`       -> abs(x)
-  * `private decimal _todayWithdrawn = 0;` -> self._today_withdrawn = Decimal("0") в __init__
-    (в Python поля объекта создаются внутри __init__, а не в теле класса)
-"""
 from datetime import date
 from decimal import Decimal
 
@@ -96,7 +87,6 @@ class PremiumAccount(BankAccount):
 
     def __str__(self) -> str:
         balance = self.get_balance()
-        # Тернарный оператор: C# `cond ? a : b`  ->  Python `a if cond else b`
         overdraft_info = f" (ОВЕРДРАФТ: {abs(balance)})" if balance < 0 else ""
         return (f"{type(self).__name__} - {self._owner_name} (****{self._last_four_digits()}) | "
                 f"Статус: {self._status} | Баланс: {balance} {self._currency}{overdraft_info} | "
